@@ -19,14 +19,39 @@ class _HomeState extends State<Home> {
     _controller.complete(googleMapController);
   }
 
+  _moveCamera() async {
+    GoogleMapController googleMapController = await _controller.future;
+    googleMapController.animateCamera(
+      CameraUpdate.newCameraPosition(
+        const CameraPosition(
+          target: LatLng(-23.5916469, -46.6436403),
+          zoom: 19,
+          tilt: 45,
+          bearing: 30.0,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       drawer: const NavigationDrawerWidget(),
       appBar: AppBar(
-        title: const Text("Mapas e Geolocalização", textAlign: TextAlign.center),
+        backgroundColor: const Color.fromRGBO(50, 75, 205, 1),
+        title:
+            const Text("Mapas e Geolocalização", textAlign: TextAlign.center),
         centerTitle: true,
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
+      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.camera_alt_outlined),
+        backgroundColor: Colors.deepOrange,
+        foregroundColor: Colors.white,
+        hoverColor: Colors.white54,
+        onPressed: _moveCamera,
       ),
       body: Stack(
         children: <Widget>[
@@ -44,10 +69,10 @@ class _HomeState extends State<Home> {
       child: GoogleMap(
         mapType: MapType.normal,
         //-23.5871069,-46.6624017
-        initialCameraPosition:
-            const CameraPosition(target: LatLng(-23.5871069, -46.6624017), zoom: 12),
+        initialCameraPosition: const CameraPosition(
+            target: LatLng(-23.5871069, -46.6624017), zoom: 12),
         onMapCreated: _onMapCreated,
-        markers: {location01, location02},
+        markers: {location01, location02, location03},
         myLocationEnabled: true,
       ),
     );
@@ -65,16 +90,25 @@ class _HomeState extends State<Home> {
 
   Marker location01 = Marker(
     markerId: const MarkerId('coord01'),
-    position: const LatLng(-23.5869348,-46.6625451),
-    infoWindow: const InfoWindow(title: 'Praça da Paz'),
+    position: const LatLng(-23.58608545, -46.66190963338509),
+    infoWindow: const InfoWindow(title: 'Pavilhão Japonês'),
     icon: BitmapDescriptor.defaultMarkerWithHue(
       BitmapDescriptor.hueViolet,
     ),
   );
   Marker location02 = Marker(
     markerId: const MarkerId('coord02'),
-    position: const LatLng(-23.5869594,-46.6598734),
+    position: const LatLng(-23.58389455, -46.65919333915626),
     infoWindow: const InfoWindow(title: 'Museu Afro Brasil'),
+    icon: BitmapDescriptor.defaultMarkerWithHue(
+      BitmapDescriptor.hueViolet,
+    ),
+  );
+
+  Marker location03 = Marker(
+    markerId: const MarkerId('coord03'),
+    position: const LatLng(-23.5916469, -46.6436403),
+    infoWindow: const InfoWindow(title: 'Taverna Medieval'),
     icon: BitmapDescriptor.defaultMarkerWithHue(
       BitmapDescriptor.hueViolet,
     ),
@@ -93,17 +127,17 @@ class _HomeState extends State<Home> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: _boxes(
-                  "https://lh5.googleusercontent.com/p/AF1QipNfh2NNPRuBItW3KmdX3V_4kg2PC7HSDjigc_-I=w408-h305-k-no",
-                  -23.5869348,
-                  -46.6625451,
-                  "Praça da Paz"),
+                  "https://lh5.googleusercontent.com/p/AF1QipMcYaJK8XVIP8nfPoXvuvqY8L26rVx2GKnxHDJV=w427-h240-k-no",
+                  -23.58608545,
+                  -46.66190963338509,
+                  "Pavilhão Japonês"),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: _boxes(
                   "https://lh5.googleusercontent.com/p/AF1QipNIcuHy2OGrjVKom4TBex1elzBVkIdXL57vkZ2J=w408-h280-k-no",
-                  -23.5869594,
-                  -46.6598734,
+                  -23.58389455,
+                  -46.65919333915626,
                   "Museu Afro Brasil"),
             ),
           ],
