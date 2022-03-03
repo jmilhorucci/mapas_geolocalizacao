@@ -15,6 +15,9 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final Completer<GoogleMapController> _controller = Completer();
   //Completer é uma maneira para fazer requisições para APIs
+
+  Set<Marker> _markers = {};
+
   _onMapCreated(GoogleMapController googleMapController) {
     _controller.complete(googleMapController);
   }
@@ -24,13 +27,65 @@ class _HomeState extends State<Home> {
     googleMapController.animateCamera(
       CameraUpdate.newCameraPosition(
         const CameraPosition(
-          target: LatLng(-23.5916469, -46.6436403),
-          zoom: 19,
-          tilt: 45,
-          bearing: 30.0,
+          target: LatLng(-23.5871069, -46.6624017),
+          zoom: 12,
+          //tilt: 45,
+          //bearing: 30.0,
         ),
       ),
     );
+  }
+
+  _loadMakers() {
+    Set<Marker> localMakers = {};
+
+    Marker location01 = Marker(
+      markerId: const MarkerId('coord01'),
+      position: const LatLng(-23.58608545, -46.66190963338509),
+      infoWindow: const InfoWindow(title: 'Pavilhão Japonês'),
+      icon: BitmapDescriptor.defaultMarkerWithHue(
+        BitmapDescriptor.hueViolet,
+      ),
+      onTap: () {
+        print("Ciclou em Pavilhão Japonês");
+      },
+    );
+    Marker location02 = Marker(
+      markerId: const MarkerId('coord02'),
+      position: const LatLng(-23.58389455, -46.65919333915626),
+      infoWindow: const InfoWindow(title: 'Museu Afro Brasil'),
+      icon: BitmapDescriptor.defaultMarkerWithHue(
+        BitmapDescriptor.hueViolet,
+      ),
+      onTap: () {
+        print("Ciclou em Museu Afro Brasil");
+      },
+    );
+    Marker location03 = Marker(
+      markerId: const MarkerId('coord03'),
+      position: const LatLng(-23.5916469, -46.6436403),
+      infoWindow: const InfoWindow(title: ''),
+      icon: BitmapDescriptor.defaultMarkerWithHue(
+        BitmapDescriptor.hueViolet,
+      ),
+      onTap: () {
+        print("Ciclou em Taverna Medieval");
+      },
+    );
+
+    localMakers.add(location01);
+    localMakers.add(location02);
+    localMakers.add(location03);
+
+    setState(() {
+      _markers = localMakers;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMakers();
   }
 
   @override
@@ -47,7 +102,7 @@ class _HomeState extends State<Home> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
       floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.camera_alt_outlined),
+        child: const Icon(Icons.my_location_outlined),
         backgroundColor: Colors.deepOrange,
         foregroundColor: Colors.white,
         hoverColor: Colors.white54,
@@ -70,9 +125,11 @@ class _HomeState extends State<Home> {
         mapType: MapType.normal,
         //-23.5871069,-46.6624017
         initialCameraPosition: const CameraPosition(
-            target: LatLng(-23.5871069, -46.6624017), zoom: 12),
+          target: LatLng(-23.5871069, -46.6624017),
+          zoom: 12,
+        ),
         onMapCreated: _onMapCreated,
-        markers: {location01, location02, location03},
+        markers: _markers,
         myLocationEnabled: true,
       ),
     );
@@ -82,43 +139,17 @@ class _HomeState extends State<Home> {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
       target: LatLng(lat, long),
-      zoom: 20,
-      tilt: 50.0,
+      zoom: 16,
+      tilt: 30.0,
       bearing: 45.0,
     )));
   }
-
-  Marker location01 = Marker(
-    markerId: const MarkerId('coord01'),
-    position: const LatLng(-23.58608545, -46.66190963338509),
-    infoWindow: const InfoWindow(title: 'Pavilhão Japonês'),
-    icon: BitmapDescriptor.defaultMarkerWithHue(
-      BitmapDescriptor.hueViolet,
-    ),
-  );
-  Marker location02 = Marker(
-    markerId: const MarkerId('coord02'),
-    position: const LatLng(-23.58389455, -46.65919333915626),
-    infoWindow: const InfoWindow(title: 'Museu Afro Brasil'),
-    icon: BitmapDescriptor.defaultMarkerWithHue(
-      BitmapDescriptor.hueViolet,
-    ),
-  );
-
-  Marker location03 = Marker(
-    markerId: const MarkerId('coord03'),
-    position: const LatLng(-23.5916469, -46.6436403),
-    infoWindow: const InfoWindow(title: 'Taverna Medieval'),
-    icon: BitmapDescriptor.defaultMarkerWithHue(
-      BitmapDescriptor.hueViolet,
-    ),
-  );
 
   Widget _buidContainer() {
     return Align(
       alignment: Alignment.bottomLeft,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 20.0),
+        margin: const EdgeInsets.symmetric(vertical: 100.0),
         height: 150.0,
         child: ListView(
           scrollDirection: Axis.horizontal,
@@ -139,6 +170,14 @@ class _HomeState extends State<Home> {
                   -23.58389455,
                   -46.65919333915626,
                   "Museu Afro Brasil"),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: _boxes(
+                  "https://lh5.googleusercontent.com/p/AF1QipPPgylvuj9AJSu7sPkqXykwEAeeGAEk0cAG-LNu=w426-h240-k-no",
+                  -23.5916469,
+                  -46.6436403,
+                  "Taverna Medieval"),
             ),
           ],
         ),
