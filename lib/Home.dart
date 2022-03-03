@@ -18,6 +18,7 @@ class _HomeState extends State<Home> {
 
   Set<Marker> _markers = {};
   Set<Polygon> _polygons = {};
+  Set<Polyline> _polylines = {};
 
   _onMapCreated(GoogleMapController googleMapController) {
     _controller.complete(googleMapController);
@@ -128,11 +129,53 @@ class _HomeState extends State<Home> {
     });
   }
 
+  _loadPolylines() {
+    Set<Polyline> listPolylines = {};
+
+    Polyline polyline01 = Polyline(
+        polylineId: const PolylineId("coordPolyline01"),
+        color: const Color.fromRGBO(50, 75, 205, 1),
+        width: 20,
+        startCap: Cap.roundCap,
+        endCap: Cap.roundCap,
+        jointType: JointType.round,
+        points: const [
+          LatLng(-23.524854, -46.664158),
+          LatLng(-23.546161, -46.665602),
+          LatLng(-23.540903, -46.628739),
+        ],
+        consumeTapEvents: true,
+        onTap: () {
+          AlertDialog alert = AlertDialog(
+            title: const Text('Polyline 01'),
+            content: const Text('Clicou no linha do Polyline 01'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.pop(context, 'OK'),
+                child: const Text('OK'),
+              ),
+            ],
+          );
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return alert;
+            },
+          );
+        });
+
+    listPolylines.add(polyline01);
+    setState(() {
+      _polylines = listPolylines;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     _loadMakers();
     _loadPolygons();
+    _loadPolylines();
   }
 
   @override
@@ -178,6 +221,7 @@ class _HomeState extends State<Home> {
         onMapCreated: _onMapCreated,
         markers: _markers,
         polygons: _polygons,
+        polylines: _polylines,
         myLocationEnabled: true,
       ),
     );
