@@ -17,6 +17,7 @@ class _HomeState extends State<Home> {
   //Completer é uma maneira para fazer requisições para APIs
 
   Set<Marker> _markers = {};
+  Set<Polygon> _polygons = {};
 
   _onMapCreated(GoogleMapController googleMapController) {
     _controller.complete(googleMapController);
@@ -40,33 +41,33 @@ class _HomeState extends State<Home> {
     Set<Marker> localMakers = {};
 
     Marker location01 = Marker(
-      markerId: const MarkerId('coord01'),
+      markerId: const MarkerId('coordLocation01'),
       position: const LatLng(-23.58608545, -46.66190963338509),
       infoWindow: const InfoWindow(title: 'Pavilhão Japonês'),
       icon: BitmapDescriptor.defaultMarkerWithHue(
-        BitmapDescriptor.hueViolet,
+        BitmapDescriptor.hueBlue,
       ),
       onTap: () {
         print("Ciclou em Pavilhão Japonês");
       },
     );
     Marker location02 = Marker(
-      markerId: const MarkerId('coord02'),
+      markerId: const MarkerId('coordLocation02'),
       position: const LatLng(-23.58389455, -46.65919333915626),
       infoWindow: const InfoWindow(title: 'Museu Afro Brasil'),
       icon: BitmapDescriptor.defaultMarkerWithHue(
-        BitmapDescriptor.hueViolet,
+        BitmapDescriptor.hueBlue,
       ),
       onTap: () {
         print("Ciclou em Museu Afro Brasil");
       },
     );
     Marker location03 = Marker(
-      markerId: const MarkerId('coord03'),
+      markerId: const MarkerId('coordLocation03'),
       position: const LatLng(-23.5916469, -46.6436403),
       infoWindow: const InfoWindow(title: ''),
       icon: BitmapDescriptor.defaultMarkerWithHue(
-        BitmapDescriptor.hueViolet,
+        BitmapDescriptor.hueBlue,
       ),
       onTap: () {
         print("Ciclou em Taverna Medieval");
@@ -82,10 +83,56 @@ class _HomeState extends State<Home> {
     });
   }
 
+  _loadPolygons() {
+    Set<Polygon> listPolygons = {};
+
+    Polygon polygon01 = Polygon(
+      polygonId: const PolygonId("coordPolygon01"),
+      fillColor: const Color.fromARGB(158, 255, 94, 0),
+      strokeColor: const Color.fromRGBO(50, 75, 205, 1),
+      strokeWidth: 5,
+      points: const [
+        LatLng(-23.568701, -46.672486),
+        LatLng(-23.600904, -46.661202),
+        LatLng(-23.594529, -46.627680),
+      ],
+      consumeTapEvents: true,
+      onTap: () {
+        print("Ciclou na área do Polygon 01");
+      },
+      zIndex: 0,
+    );
+
+    Polygon polygon02 = Polygon(
+      polygonId: const PolygonId("coordPolygon02"),
+      fillColor: Color.fromARGB(158, 51, 255, 0),
+      strokeColor: const Color.fromRGBO(50, 75, 205, 1),
+      strokeWidth: 5,
+      points: const [
+        LatLng(-23.610325, -46.668235),
+        LatLng(-23.570736, -46.677200),
+        LatLng(-23.573962, -46.628040),
+      ],
+      consumeTapEvents: true,
+      onTap: () {
+        print("Ciclou na área do Polygon 02");
+      },
+      zIndex: 1,
+    );
+
+    listPolygons.add(polygon01);
+    listPolygons.add(polygon02);
+
+    setState(() {
+      _polygons = listPolygons;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     _loadMakers();
+    _loadPolygons();
   }
 
   @override
@@ -130,6 +177,7 @@ class _HomeState extends State<Home> {
         ),
         onMapCreated: _onMapCreated,
         markers: _markers,
+        polygons: _polygons,
         myLocationEnabled: true,
       ),
     );
@@ -235,7 +283,7 @@ class _HomeState extends State<Home> {
             child: Text(
               pointsName,
               style: const TextStyle(
-                  color: Color(0xFF6200EE),
+                  color: Color.fromRGBO(50, 75, 205, 1),
                   fontSize: 24.0,
                   fontWeight: FontWeight.bold),
             ),
