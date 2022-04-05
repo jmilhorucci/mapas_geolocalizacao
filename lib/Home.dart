@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'dart:async';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'navigation_drawer_widget.dart';
 
@@ -16,6 +17,9 @@ class _HomeState extends State<Home> {
   final Completer<GoogleMapController> _controller = Completer();
   //Completer é uma maneira para fazer requisições para APIs
 
+  CameraPosition _cameraPosition =
+      CameraPosition(target: LatLng(-23.5871069, -46.6624017), zoom: 12);
+
   Set<Marker> _markers = {};
   Set<Polygon> _polygons = {};
   Set<Polyline> _polylines = {};
@@ -27,14 +31,14 @@ class _HomeState extends State<Home> {
   _moveCamera() async {
     GoogleMapController googleMapController = await _controller.future;
     googleMapController.animateCamera(
-      CameraUpdate.newCameraPosition(
-        const CameraPosition(
+      CameraUpdate.newCameraPosition(_cameraPosition
+          /*const CameraPosition(
           target: LatLng(-23.5871069, -46.6624017),
           zoom: 12,
           //tilt: 45,
           //bearing: 30.0,
-        ),
-      ),
+        ),*/
+          ),
     );
   }
 
@@ -54,7 +58,7 @@ class _HomeState extends State<Home> {
     );
     Marker location02 = Marker(
       markerId: const MarkerId('coordLocation02'),
-      position: const LatLng(-23.58389455, -46.65919333915626),
+      position: const LatLng(-23.5916469, -46.6436403),
       infoWindow: const InfoWindow(title: 'Museu Afro Brasil'),
       icon: BitmapDescriptor.defaultMarkerWithHue(
         BitmapDescriptor.hueBlue,
@@ -106,7 +110,7 @@ class _HomeState extends State<Home> {
 
     Polygon polygon02 = Polygon(
       polygonId: const PolygonId("coordPolygon02"),
-      fillColor: Color.fromARGB(158, 51, 255, 0),
+      fillColor: const Color.fromARGB(158, 51, 255, 0),
       strokeColor: const Color.fromRGBO(50, 75, 205, 1),
       strokeWidth: 5,
       points: const [
@@ -170,12 +174,49 @@ class _HomeState extends State<Home> {
     });
   }
 
+  void _recoverActualLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error(
+            'Parece que você não permitiu o uso do GPS, abra as configurações do aplicativo e libere a permissão.');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+  }
+
+  void getLocationUpdates() {
+    Geolocator.getPositionStream().listen((Position position) {
+      setState(() {
+        _cameraPosition = CameraPosition(
+            target: LatLng(position.latitude, position.longitude), zoom: 15);
+        _moveCamera();
+      });
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     _loadMakers();
     _loadPolygons();
     _loadPolylines();
+    _recoverActualLocation();
+    getLocationUpdates();
+    //_addListenerLocation();
   }
 
   @override
@@ -214,15 +255,12 @@ class _HomeState extends State<Home> {
       child: GoogleMap(
         mapType: MapType.normal,
         //-23.5871069,-46.6624017
-        initialCameraPosition: const CameraPosition(
-          target: LatLng(-23.5871069, -46.6624017),
-          zoom: 12,
-        ),
+        initialCameraPosition: _cameraPosition,
         onMapCreated: _onMapCreated,
+        myLocationEnabled: true,
         markers: _markers,
         polygons: _polygons,
         polylines: _polylines,
-        myLocationEnabled: true,
       ),
     );
   }
@@ -250,7 +288,7 @@ class _HomeState extends State<Home> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: _boxes(
-                  "https://lh5.googleusercontent.com/p/AF1QipMcYaJK8XVIP8nfPoXvuvqY8L26rVx2GKnxHDJV=w427-h240-k-no",
+                  "https://lh5.googleusercontent.com/p/AF1QipOtAErWhT1bWXR65T4cpSRcTnKSoAnXtX1vwMPE=w408-h306-k-no",
                   -23.58608545,
                   -46.66190963338509,
                   "Pavilhão Japonês"),
