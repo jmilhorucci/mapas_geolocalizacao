@@ -17,6 +17,10 @@ class _HomeState extends State<Home> {
   final Completer<GoogleMapController> _controller = Completer();
   //Completer é uma maneira para fazer requisições para APIs
 
+  LatLng coordLatLng01 = const LatLng(-23.58608545, -46.66190963338509);
+  LatLng coordLatLng02 = const LatLng(-23.58389455, -46.65919333915626);
+  LatLng coordLatLng03 = const LatLng(-23.5916469, -46.6436403);
+
   CameraPosition _cameraPosition =
       CameraPosition(target: LatLng(-23.5871069, -46.6624017), zoom: 12);
 
@@ -47,7 +51,7 @@ class _HomeState extends State<Home> {
 
     Marker location01 = Marker(
       markerId: const MarkerId('coordLocation01'),
-      position: const LatLng(-23.58608545, -46.66190963338509),
+      position: LatLng(coordLatLng01.latitude, coordLatLng01.longitude),
       infoWindow: const InfoWindow(title: 'Pavilhão Japonês'),
       icon: BitmapDescriptor.defaultMarkerWithHue(
         BitmapDescriptor.hueBlue,
@@ -58,7 +62,7 @@ class _HomeState extends State<Home> {
     );
     Marker location02 = Marker(
       markerId: const MarkerId('coordLocation02'),
-      position: const LatLng(-23.5916469, -46.6436403),
+      position: LatLng(coordLatLng02.latitude, coordLatLng02.longitude),
       infoWindow: const InfoWindow(title: 'Museu Afro Brasil'),
       icon: BitmapDescriptor.defaultMarkerWithHue(
         BitmapDescriptor.hueBlue,
@@ -69,7 +73,7 @@ class _HomeState extends State<Home> {
     );
     Marker location03 = Marker(
       markerId: const MarkerId('coordLocation03'),
-      position: const LatLng(-23.5916469, -46.6436403),
+      position: LatLng(coordLatLng03.latitude, coordLatLng03.longitude),
       infoWindow: const InfoWindow(title: ''),
       icon: BitmapDescriptor.defaultMarkerWithHue(
         BitmapDescriptor.hueBlue,
@@ -198,9 +202,33 @@ class _HomeState extends State<Home> {
     }
   }
 
-  void getLocationUpdates() {
-    Geolocator.getPositionStream().listen((Position position) {
+  late BitmapDescriptor mapMarker;
+
+  void _setCustomMarker() async {
+    mapMarker = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(), 'assets/user_location.png');
+  }
+
+  void _addListenerLocation() {
+    Geolocator.getPositionStream(
+            locationSettings: const LocationSettings(
+                accuracy: LocationAccuracy.high, distanceFilter: 10))
+        .listen((Position position) {
+      // ignore: avoid_print
+      print("LOCALIZAÇÃO ATUAL: " + position.toString());
+
+      Marker userPosition = Marker(
+        markerId: const MarkerId('user-position'),
+        position: LatLng(position.latitude, position.longitude),
+        infoWindow: const InfoWindow(title: 'Minha Localização'),
+        icon: mapMarker,
+        onTap: () {
+          print("Clicou em Minha Localização");
+        },
+      );
+
       setState(() {
+        _markers.add(userPosition);
         _cameraPosition = CameraPosition(
             target: LatLng(position.latitude, position.longitude), zoom: 15);
         _moveCamera();
@@ -215,7 +243,8 @@ class _HomeState extends State<Home> {
     _loadPolygons();
     _loadPolylines();
     _recoverActualLocation();
-    getLocationUpdates();
+    _addListenerLocation();
+    _setCustomMarker();
     //_addListenerLocation();
   }
 
@@ -254,10 +283,9 @@ class _HomeState extends State<Home> {
       width: MediaQuery.of(context).size.width,
       child: GoogleMap(
         mapType: MapType.normal,
-        //-23.5871069,-46.6624017
         initialCameraPosition: _cameraPosition,
         onMapCreated: _onMapCreated,
-        myLocationEnabled: true,
+        // myLocationEnabled: true,
         markers: _markers,
         polygons: _polygons,
         polylines: _polylines,
@@ -289,24 +317,24 @@ class _HomeState extends State<Home> {
               padding: const EdgeInsets.all(8.0),
               child: _boxes(
                   "https://lh5.googleusercontent.com/p/AF1QipOtAErWhT1bWXR65T4cpSRcTnKSoAnXtX1vwMPE=w408-h306-k-no",
-                  -23.58608545,
-                  -46.66190963338509,
+                  coordLatLng01.latitude,
+                  coordLatLng01.longitude,
                   "Pavilhão Japonês"),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: _boxes(
                   "https://lh5.googleusercontent.com/p/AF1QipNIcuHy2OGrjVKom4TBex1elzBVkIdXL57vkZ2J=w408-h280-k-no",
-                  -23.58389455,
-                  -46.65919333915626,
+                  coordLatLng02.latitude,
+                  coordLatLng02.longitude,
                   "Museu Afro Brasil"),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: _boxes(
                   "https://lh5.googleusercontent.com/p/AF1QipPPgylvuj9AJSu7sPkqXykwEAeeGAEk0cAG-LNu=w426-h240-k-no",
-                  -23.5916469,
-                  -46.6436403,
+                  coordLatLng03.latitude,
+                  coordLatLng03.longitude,
                   "Taverna Medieval"),
             ),
           ],
